@@ -5,6 +5,9 @@
  */
 
 function sleep(milliseconds) {
+    return new Promise(async (resolve,err)=>{
+        await setTimeout(resolve, milliseconds);
+    })
 }
 
 module.exports = sleep;
