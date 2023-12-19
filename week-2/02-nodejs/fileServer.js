@@ -23,6 +23,17 @@ app.get("/files",(req,res)=>{
   res.status(200).json(result);
 })
 
+app.get("/file/:filename", (req,res)=>{
+  let fileName = req.params.filename.toString();
+  fs.readFile(`./files/${fileName}`,"utf-8", (err, data)=>{
+    if(err){
+      res.status(404).send("File not found");
+    }else{
+      res.status(200).send(data);
+    }
+  })
+})
+
 
 app.listen(3000);
 module.exports = app;
