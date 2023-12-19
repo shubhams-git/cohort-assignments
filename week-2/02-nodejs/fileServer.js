@@ -18,14 +18,19 @@ const path = require('path');
 const app = express();
 
 app.get("/files",(req,res)=>{
-  let result = {"names": fs.readdirSync('./files')}
-  console.log(result)
-  res.status(200).json(result);
+  fs.readdir("./files", (err,files)=>{
+    if(err){
+      res.status(500).send("Internal Server Error")
+    }else{
+      res.status(200).send(files);
+    }
+  })
 })
 
 app.get("/file/:filename", (req,res)=>{
   let fileName = req.params.filename.toString();
-  fs.readFile(`./files/${fileName}`,"utf-8", (err, data)=>{
+  let newPath = path.join("./files", fileName);
+  fs.readFile(newPath,"utf-8", (err, data)=>{
     if(err){
       res.status(404).send("File not found");
     }else{
@@ -34,6 +39,9 @@ app.get("/file/:filename", (req,res)=>{
   })
 })
 
+app.all("*", (req,res)=>{
+  res.status(404).send("Route not found");
+})
 
-app.listen(3000);
+app.listen(3001);
 module.exports = app;
