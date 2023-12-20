@@ -17,31 +17,34 @@ const fs = require('fs');
 const path = require('path');
 const app = express();
 
-app.get("/files",(req,res)=>{
-  fs.readdir("./files", (err,files)=>{
-    if(err){
-      res.status(500).send("Internal Server Error")
-    }else{
-      res.status(200).send(files);
-    }
-  })
-})
+app.get("/files", (req, res) => {
+  const directoryPath = path.join(__dirname, 'files');
 
-app.get("/file/:filename", (req,res)=>{
-  let fileName = req.params.filename.toString();
-  let newPath = path.join("./files", fileName);
-  fs.readFile(newPath,"utf-8", (err, data)=>{
-    if(err){
-      res.status(404).send("File not found");
-    }else{
-      res.status(200).send(data);
+  fs.readdir(directoryPath, (err, files) => {
+    if (err) {
+      return res.status(500).send("Internal Server Error");
     }
-  })
-})
+    res.status(200).json(files);
+  });
+});
 
-app.all("*", (req,res)=>{
+app.get("/file/:filename", (req, res) => {
+  const fileName = req.params.filename;
+  const filePath = path.join(__dirname, 'files', fileName);
+
+  fs.readFile(filePath, "utf-8", (err, data) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        return res.status(404).send("File not found");
+      }
+      return res.status(500).send("Error reading file");
+    }
+    res.status(200).send(data);
+  });
+});
+
+app.all("*", (req, res) => {
   res.status(404).send("Route not found");
-})
+});
 
-app.listen(3001);
 module.exports = app;
