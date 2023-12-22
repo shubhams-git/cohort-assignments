@@ -9,5 +9,6 @@ function isAnagram(str1, str2) {
   sortedStr2 = str2.toLowerCase().split("").sort().join("");
   return sortedStr1 == sortedStr2;
 }
+console.log(isAnagram("word", "words"));
 
 module.exports = isAnagram;

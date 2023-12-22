@@ -19,7 +19,8 @@
   3. POST /todos - Create a new todo item
     Description: Creates a new todo item.
     Request Body: JSON object representing the todo item.
-    Response: 201 Created with the ID of the created todo item in JSON format. eg: {id: 1}
+    Response: 201 Created with the ID of th
+    e created todo item in JSON format. eg: {id: 1}
     Example: POST http://localhost:3000/todos
     Request Body: { "title": "Buy groceries", "completed": false, description: "I should buy groceries" }
     
@@ -40,10 +41,78 @@
   Testing the server - run `npm run test-todoServer` command in terminal
  */
   const express = require('express');
-  const bodyParser = require('body-parser');
-  
   const app = express();
+  app.use(express.json()); // Since Express 4.16+, bodyParser is included in Express
   
-  app.use(bodyParser.json());
+  class ToDo {
+    constructor(id, title, completed, description) {
+      this.id = id;
+      this.title = title;
+      this.completed = completed;
+      this.description = description;
+    }
+  }
+  
+  let toDoList = [];
+  
+  app.get("/todos", (req, res) => {
+    res.status(200).json(toDoList);
+  });
+  
+  app.get("/todos/:id", (req, res) => {
+    const { id } = req.params;
+    const todoItem = toDoList.find(item => item.id === id);
+  
+    if (todoItem) {
+      res.status(200).json(todoItem);
+    } else {
+      res.status(404).send("Not found");
+    }
+  });
+  
+  app.post("/todos", (req, res) => {
+    const { title, description, completed } = req.body;
+    
+    if (!title || !description) {
+      return res.status(400).send("Bad Request: Title and description are required.");
+    }
+  
+    const id = (toDoList.length + 1).toString(); // Simple ID generation, consider using UUID for production
+    const newTodo = new ToDo(id, title, completed || false, description);
+    toDoList.push(newTodo);
+  
+    res.status(201).json({ id });
+  });
+  
+  app.put("/todos/:id", (req, res) => {
+    const { id } = req.params;
+    const { title, completed } = req.body;
+    const todoItem = toDoList.find(item => item.id === id);
+  
+    if (todoItem) {
+      if (title !== undefined) todoItem.title = title;
+      if (completed !== undefined) todoItem.completed = completed;
+      res.status(200).json(todoItem);
+    } else {
+      res.status(404).send("Not Found");
+    }
+  });
+  
+  app.delete("/todos/:id", (req, res) => {
+    const { id } = req.params;
+    const index = toDoList.findIndex(item => item.id === id);
+  
+    if (index !== -1) {
+      toDoList.splice(index, 1);
+      res.status(200).send("OK");
+    } else {
+      res.status(404).send("Not found");
+    }
+  });
+  
+  app.use((req, res) => {
+    res.status(404).send("Not Found");
+  });
   
   module.exports = app;
+  
