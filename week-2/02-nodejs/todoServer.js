@@ -42,6 +42,7 @@
  */
   const express = require('express');
   const app = express();
+  const fs = require('fs');
   app.use(express.json()); // Since Express 4.16+, bodyParser is included in Express
   
   class ToDo {
@@ -54,6 +55,7 @@
   }
   
   let toDoList = [];
+
   
   app.get("/todos", (req, res) => {
     res.status(200).json(toDoList);
@@ -113,6 +115,8 @@
   app.use((req, res) => {
     res.status(404).send("Not Found");
   });
+
+  app.listen(3000);
   
   module.exports = app;
   
