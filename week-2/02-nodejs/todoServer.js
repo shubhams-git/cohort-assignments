@@ -54,8 +54,31 @@
     }
   }
   
-  let toDoList = [];
+  function writeJson(){
+    let data = "";
+    toDoList.forEach((i)=>{
+      data= data + JSON.stringify(i)+ "\n";
+    })
+    fs.writeFileSync("todos.json", data);
+  }
 
+  function readJson(){
+    let jsonList = [];
+    if (!fs.existsSync("todos.json")) {
+      return jsonList;
+    }
+    
+    let data = fs.readFileSync("todos.json","utf-8");
+    if(data){
+      let stringList = data.trim().split("\n");
+      jsonList = stringList.map((item)=>{
+        return JSON.parse(item);
+      })
+    }
+    return jsonList;
+  }
+
+  let toDoList = readJson();
   
   app.get("/todos", (req, res) => {
     res.status(200).json(toDoList);
@@ -82,7 +105,7 @@
     const id = (toDoList.length + 1).toString(); // Simple ID generation, consider using UUID for production
     const newTodo = new ToDo(id, title, completed || false, description);
     toDoList.push(newTodo);
-  
+    writeJson();
     res.status(201).json({ id });
   });
   
@@ -94,6 +117,7 @@
     if (todoItem) {
       if (title !== undefined) todoItem.title = title;
       if (completed !== undefined) todoItem.completed = completed;
+      writeJson();
       res.status(200).json(todoItem);
     } else {
       res.status(404).send("Not Found");
@@ -106,6 +130,7 @@
   
     if (index !== -1) {
       toDoList.splice(index, 1);
+      writeJson();
       res.status(200).send("OK");
     } else {
       res.status(404).send("Not found");
@@ -116,7 +141,5 @@
     res.status(404).send("Not Found");
   });
 
-  app.listen(3000);
-  
   module.exports = app;
   
