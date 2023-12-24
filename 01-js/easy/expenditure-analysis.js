@@ -13,7 +13,6 @@ function calculateTotalSpentByCategory(transactions) {
     let found = false;
 
     for (let j = 0; j < categoryTotals.length; j++) {
-      console.log(categoryTotals[j].hasOwnProperty(category));
       if (categoryTotals[j].hasOwnProperty(category)) {
         categoryTotals[j][category] += amount;
         found = true;
